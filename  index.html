@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>นักล่าค่า x – เกมผจญภัยสมการ</title>
+<link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--gold:#ffc94d;--ok:#1f9d55;--bad:#d9534f;--paper:#fdf3d8;--ink:#2b2116}
+*,*:before,*:after{box-sizing:inherit}
+html,body{margin:0;min-height:100%}
+body{font-family:'Mali','Sarabun','Noto Sans Thai',system-ui,sans-serif;color:#fdf6e3;background:#12302c;transition:background .8s}
+body[data-z="1"]{background:#12302c}
+body[data-z="2"]{background:#221f4d}
+body[data-z="3"]{background:#45170f}
+#app{max-width:580px;margin:0 auto;padding:14px}
+h1{font-size:2.3rem;line-height:1.15;margin:.4rem 0}
+button{font-family:inherit;font-size:1.1rem;font-weight:700;border:0;border-radius:14px;padding:.8rem 1.4rem;background:var(--gold);color:#3a2800;cursor:pointer;box-shadow:0 4px 0 #b88a14}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 #b88a14}
+button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:2px}
+[hidden]{display:none!important}
+.hero{text-align:center;padding:1.2rem .5rem}
+.big{font-size:4.5rem}
+.rules{background:rgba(255,255,255,.1);border-radius:16px;padding:.9rem 1.2rem;text-align:left;margin:1rem 0;line-height:1.7}
+.zones{display:flex;gap:.5rem;justify-content:center;font-size:1.8rem;margin:.5rem 0}
+.top{display:flex;justify-content:space-between;align-items:center;font-weight:700;gap:.5rem}
+.pill{background:rgba(0,0,0,.3);border-radius:99px;padding:.25rem .8rem}
+.track{position:relative;height:10px;background:rgba(255,255,255,.18);border-radius:9px;margin:1.6rem 0 .8rem}
+.fill{height:100%;background:var(--gold);border-radius:9px;transition:width .5s}
+.me{position:absolute;top:-22px;font-size:1.6rem;transform:translateX(-50%);transition:left .5s}
+.timer{height:12px;background:rgba(0,0,0,.35);border-radius:9px;overflow:hidden}
+.timer i{display:block;height:100%;width:100%;background:#6fe08f;transition:width .2s linear,background .3s}
+.timer.low i{background:#ff7a5c}
+.tnum{text-align:right;font-weight:700;margin:.2rem 0 .6rem}
+.card{background:var(--paper);color:var(--ink);border-radius:20px;padding:1.2rem;border:3px solid #c99a3b;box-shadow:0 6px 0 rgba(0,0,0,.3)}
+.intro{background:#2b2116;color:var(--gold);border-radius:12px;padding:.5rem .8rem;margin-bottom:.8rem;font-size:.95rem}
+.story{font-size:1.08rem;line-height:1.5;margin:0 0 .6rem}
+.eq{font-size:clamp(1.7rem,8vw,2.4rem);font-weight:700;text-align:center;background:#fff;border-radius:14px;padding:.7rem .4rem;margin:.4rem 0 1rem;letter-spacing:.02em}
+.row{display:flex;gap:.6rem;align-items:center}
+.row b{font-size:1.6rem}
+input{flex:1;min-width:0;font-family:inherit;font-size:1.6rem;font-weight:700;padding:.5rem .8rem;border-radius:12px;border:3px solid #c99a3b;text-align:center;background:#fff;color:var(--ink)}
+.fb{margin-top:1rem;border-radius:16px;padding:1rem;line-height:1.6;animation:pop .3s}
+.fb.ok{background:#d6f5de;color:#0d4a26}
+.fb.no{background:#ffe3df;color:#5c1a14}
+.fb h2{margin:0 0 .3rem;font-size:1.3rem}
+.fb button{margin-top:.8rem;width:100%}
+.shake{animation:sh .3s}
+@keyframes pop{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
+@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.stars{font-size:2.4rem;letter-spacing:.2rem}
+.score{font-size:3rem;font-weight:700;color:var(--gold)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.card{transform:perspective(900px) rotateX(2deg)}
+.stage{display:flex;align-items:center;gap:.9rem;margin-bottom:.8rem}
+.mas{width:64px;height:64px;perspective:320px;flex:none;margin:4px 6px}
+.cube{width:100%;height:100%;position:relative;transform-style:preserve-3d;animation:sw 4s ease-in-out infinite}
+.cube i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-size:1.7rem;background:radial-gradient(circle at 30% 25%,#ffeaa6,#ffc94d);border:3px solid #e0a62a;border-radius:16px}
+.cube i:nth-child(1){transform:translateZ(32px)}
+.cube i:nth-child(2){transform:rotateY(180deg) translateZ(32px)}
+.cube i:nth-child(3){transform:rotateY(90deg) translateZ(32px)}
+.cube i:nth-child(4){transform:rotateY(-90deg) translateZ(32px)}
+.cube i:nth-child(5){transform:rotateX(90deg) translateZ(32px)}
+.cube i:nth-child(6){transform:rotateX(-90deg) translateZ(32px)}
+.mas.yay{animation:hop .6s}
+.mas.yay .cube{animation:spin1 .8s ease}
+.mas.oops .cube{animation:wob .6s}
+@keyframes sw{0%,100%{transform:rotateX(-14deg) rotateY(-28deg)}50%{transform:rotateX(-14deg) rotateY(28deg)}}
+@keyframes spin1{from{transform:rotateX(-14deg) rotateY(0)}to{transform:rotateX(-14deg) rotateY(360deg)}}
+@keyframes hop{40%{transform:translateY(-22px)}}
+@keyframes wob{25%{transform:rotateZ(-14deg)}75%{transform:rotateZ(14deg)}}
+@keyframes flip{to{transform:rotateY(360deg)}}
+.coin{display:inline-block;animation:flip 1s linear 2}
+.bub{background:#fff;border:2px solid #c99a3b;border-radius:14px;padding:.45rem .7rem;font-size:.95rem;line-height:1.4}
+.slot{flex:1;min-height:60px;display:grid;place-items:center;font-size:2rem;font-weight:700;border:3px dashed #c99a3b;border-radius:14px;background:#fff8e2;color:#bba97a;box-shadow:inset 0 4px 8px rgba(0,0,0,.15);cursor:pointer}
+.slot.hot{background:#ffe8a3;border-color:#e08a00}
+.slot.full{border-style:solid;color:var(--ink)}
+.tray{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin:1.1rem 0 .5rem}
+.tok{touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;text-align:center;font-size:1.6rem;font-weight:700;padding:.7rem 0;border-radius:14px;background:linear-gradient(#ffe08a,#ffc94d);color:#3a2800;border:2px solid #e0a62a;box-shadow:0 6px 0 #b88a14,0 12px 12px rgba(0,0,0,.3);transform:perspective(300px) rotateX(14deg)}
+.tok.drag{position:relative;z-index:9;cursor:grabbing;box-shadow:0 14px 0 #b88a14,0 22px 20px rgba(0,0,0,.35)}
+.tok.sel{opacity:.4}
+.hint{font-size:.85rem;text-align:center;margin:.2rem 0 .8rem;opacity:.7}
+.rep{text-align:left;background:rgba(255,255,255,.1);border-radius:16px;padding:1rem;margin:1rem 0}
+.rep h3{margin:1rem 0 .3rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.stat{background:rgba(0,0,0,.28);border-radius:12px;padding:.6rem;text-align:center;font-size:.9rem}
+.stat b{display:block;font-size:1.5rem;color:var(--gold)}
+.zr{display:flex;align-items:center;gap:.5rem;margin:.4rem 0}
+.zr span{flex:none;width:8.5rem}
+.bar{flex:1;height:14px;background:rgba(0,0,0,.35);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--gold)}
+details{margin-top:.6rem}summary{cursor:pointer;font-weight:700}
+details p{margin:.4rem 0;font-size:.95rem}
+.btns{display:grid;gap:.7rem}
+</style>
+</head>
+<body data-z="1">
+<main id="app">
+
+<section id="start" class="hero">
+  <div class="big">🧙‍♂️🗺️</div>
+  <h1>นักล่าค่า x</h1>
+  <p>ออกผจญภัยผ่าน 3 ดินแดน แล้วไขปริศนาสมการให้ครบ 30 ข้อ!</p>
+  <div class="zones" aria-hidden="true">🌲 → 💎 → 🐉</div>
+  <div class="rules">
+    ⏱️ มีเวลา 30 วินาทีต่อข้อ<br>
+    ⭐ ตอบถูกได้ 5 คะแนน (เต็ม 150)<br>
+    💡 ตอบผิดไม่เป็นไร มีเฉลยให้ดูทุกข้อ<br>
+    ✍️ พิมพ์ค่า x เป็นตัวเลข แล้วกด “ตอบเลย”
+  </div>
+  <input id="nm" placeholder="ชื่อ-ห้อง เช่น สมชาย ม.1/2" maxlength="30" aria-label="ชื่อ" style="width:100%;margin-bottom:.9rem;font-size:1.1rem"><br><button id="go">เริ่มผจญภัย 🚀</button>
+</section>
+
+<section id="play" hidden>
+  <div class="top"><span class="pill" id="zname"></span><span class="pill">คะแนน <span id="sc">0</span></span><span class="pill" id="qn"></span></div>
+  <div class="track"><div class="fill" id="fill"></div><div class="me" id="me">🧙‍♂️</div></div>
+  <div class="timer" id="tbar"><i id="ti"></i></div>
+  <div class="tnum">เหลือเวลา <span id="tn">30</span> วินาที</div>
+  <div class="card" id="card">
+    <div class="intro" id="intro" hidden></div>
+    <div class="stage"><div class="mas" id="mas"><div class="cube"><i>😊</i><i>😴</i><i>🤓</i><i>😎</i><i>🎩</i><i>🍀</i></div></div><div class="bub" id="bub"></div></div><p class="story" id="story"></p>
+    <div class="eq" id="eq"></div>
+    <div id="ans"><div class="row"><b>x =</b><div class="slot" id="slot" aria-label="ช่องใส่คำตอบ">?</div></div><div class="tray" id="tray"></div><p class="hint">ลากเลขไปวางในช่อง หรือแตะเลขก็ได้ (แตะช่องเพื่อล้าง)</p><button id="sub" style="width:100%">ตอบเลย</button></div>
+    <div class="fb" id="fb" hidden></div>
+  </div>
+</section>
+
+<section id="end" class="hero" hidden>
+  <div class="big" id="eicon">🏆</div>
+  <h1 id="etitle"></h1><p id="ename"></p>
+  <div class="stars" id="estars"></div>
+  <div class="score"><span id="esc"></span> / 150</div>
+  <p id="emsg"></p>
+  <div class="rep"><div class="grid" id="stats"></div><h3>ผลแต่ละด่าน</h3><div id="zbars"></div><p id="tip"></p>
+  <details id="rv"><summary id="rvs"></summary><div id="rvl"></div></details></div>
+  <div class="btns"><button id="copy">คัดลอกผลสรุป 📋</button><button id="again">เล่นอีกครั้ง 🔁</button></div>
+</section>
+
+</main>
+<script>
+const Q=[
+["Mia has some stickers. She gets 7 more. Now she has 15 stickers.","x + 7 = 15",8,"ลบ 7 ออกจากทั้งสองข้าง<br>x = 15 − 7 = 8"],
+["Tom had some coins. He spent 6 coins. Now he has 9 coins left.","x − 6 = 9",15,"บวก 6 เข้าทั้งสองข้าง<br>x = 9 + 6 = 15"],
+["4 bags have the same number of apples. There are 28 apples in all.","4x = 28",7,"หารทั้งสองข้างด้วย 4<br>x = 28 ÷ 4 = 7"],
+["Some cookies are shared equally by 3 friends. Each friend gets 5 cookies.","x ÷ 3 = 5",15,"คูณทั้งสองข้างด้วย 3<br>x = 5 × 3 = 15"],
+["A box has some books. We add 9 more books. Now there are 23 books.","x + 9 = 23",14,"ลบ 9 ออกจากทั้งสองข้าง<br>x = 23 − 9 = 14"],
+["5 pens cost 45 baht. Each pen costs x baht.","5x = 45",9,"หารทั้งสองข้างด้วย 5<br>x = 45 ÷ 5 = 9"],
+["A rope was cut by 8 cm. The rope is now 11 cm long.","x − 8 = 11",19,"บวก 8 เข้าทั้งสองข้าง<br>x = 11 + 8 = 19"],
+["A number divided by 4 is 6.","x ÷ 4 = 6",24,"คูณทั้งสองข้างด้วย 4<br>x = 6 × 4 = 24"],
+["7 friends each pay the same price. Together they pay 56 baht.","7x = 56",8,"หารทั้งสองข้างด้วย 7<br>x = 56 ÷ 7 = 8"],
+["A number plus 15 is 32.","x + 15 = 32",17,"ลบ 15 ออกจากทั้งสองข้าง<br>x = 32 − 15 = 17"],
+["You buy 2 toys at x baht each, plus 3 baht for a bag. The total is 11 baht.","2x + 3 = 11",4,"ลบ 3 ก่อน: 2x = 8<br>แล้วหารด้วย 2: x = 4"],
+["3 times a number, minus 5, is 16.","3x − 5 = 16",7,"บวก 5 ก่อน: 3x = 21<br>แล้วหารด้วย 3: x = 7"],
+["5 boxes have x pencils each. Add 4 loose pencils. Now there are 34 pencils.","5x + 4 = 34",6,"ลบ 4 ก่อน: 5x = 30<br>แล้วหารด้วย 5: x = 6"],
+["Half of a number, plus 3, is 9.","x ÷ 2 + 3 = 9",12,"ลบ 3 ก่อน: x ÷ 2 = 6<br>แล้วคูณ 2: x = 12"],
+["4 times a number, minus 6, is 30.","4x − 6 = 30",9,"บวก 6 ก่อน: 4x = 36<br>แล้วหารด้วย 4: x = 9"],
+["Add 3 to a number. Then multiply by 2. The answer is 18.","2(x + 3) = 18",6,"หารทั้งสองข้างด้วย 2: x + 3 = 9<br>ลบ 3: x = 6"],
+["Take 2 from a number. Then multiply by 3. The answer is 15.","3(x − 2) = 15",7,"หารทั้งสองข้างด้วย 3: x − 2 = 5<br>บวก 2: x = 7"],
+["6 packs have x stickers each. Add 5 more stickers. Now there are 53 stickers.","6x + 5 = 53",8,"ลบ 5 ก่อน: 6x = 48<br>แล้วหารด้วย 6: x = 8"],
+["A number divided by 5, minus 2, is 3.","x ÷ 5 − 2 = 3",25,"บวก 2 ก่อน: x ÷ 5 = 5<br>แล้วคูณ 5: x = 25"],
+["Add 1 to a number. Then multiply by 4. The answer is 24.","4(x + 1) = 24",5,"หารทั้งสองข้างด้วย 4: x + 1 = 6<br>ลบ 1: x = 5"],
+["Two plans cost the same. Plan A is 3x + 4. Plan B is x + 12.","3x + 4 = x + 12",4,"ลบ x ทั้งสองข้าง: 2x + 4 = 12<br>ลบ 4: 2x = 8 แล้วหารด้วย 2: x = 4"],
+["Both sides are equal. Find x.","5x − 3 = 2x + 12",5,"ลบ 2x ทั้งสองข้าง: 3x − 3 = 12<br>บวก 3: 3x = 15 แล้วหารด้วย 3: x = 5"],
+["Ben and Ana have the same number of stars. Ben has 4x + 7. Ana has 2x + 19.","4x + 7 = 2x + 19",6,"ลบ 2x ทั้งสองข้าง: 2x + 7 = 19<br>ลบ 7: 2x = 12 แล้วหารด้วย 2: x = 6"],
+["Double (x + 4) is the same as x + 11.","2(x + 4) = x + 11",3,"กระจายวงเล็บ: 2x + 8 = x + 11<br>ลบ x: x + 8 = 11 แล้วลบ 8: x = 3"],
+["3 times (x − 1) is the same as 2x + 5.","3(x − 1) = 2x + 5",8,"กระจายวงเล็บ: 3x − 3 = 2x + 5<br>ลบ 2x: x − 3 = 5 แล้วบวก 3: x = 8"],
+["The two sides are equal. Find x.","7x − 10 = 4x + 11",7,"ลบ 4x ทั้งสองข้าง: 3x − 10 = 11<br>บวก 10: 3x = 21 แล้วหารด้วย 3: x = 7"],
+["Two times (3x − 1) is the same as 4x + 10.","2(3x − 1) = 4x + 10",6,"กระจายวงเล็บ: 6x − 2 = 4x + 10<br>ลบ 4x: 2x − 2 = 10 → 2x = 12 → x = 6"],
+["5 times (x + 2) is the same as 3 times (x + 6).","5(x + 2) = 3(x + 6)",4,"กระจายวงเล็บ: 5x + 10 = 3x + 18<br>ลบ 3x: 2x + 10 = 18 → 2x = 8 → x = 4"],
+["4 times (x − 3) is the same as 2 times (x + 1).","4(x − 3) = 2(x + 1)",7,"กระจายวงเล็บ: 4x − 12 = 2x + 2<br>ลบ 2x: 2x − 12 = 2 → 2x = 14 → x = 7"],
+["The final boss puzzle! Find x.","3(2x + 1) = 5x + 13",10,"กระจายวงเล็บ: 6x + 3 = 5x + 13<br>ลบ 5x: x + 3 = 13 แล้วลบ 3: x = 10"]
+];
+const Z=[
+["🌲 ป่ากระซิบ","🌲 ยินดีต้อนรับสู่ป่ากระซิบ! ไขสมการง่ายๆ เพื่อหาทางออกจากป่า"],
+["💎 ถ้ำคริสตัล","💎 ถึงถ้ำคริสตัลแล้ว! สมการเริ่มมีหลายขั้นตอน ค่อยๆ คิดนะ"],
+["🐉 ปราสาทมังกร","🐉 ด่านสุดท้าย ปราสาทมังกร! มีตัวแปรทั้งสองข้างและวงเล็บ สู้ๆ!"]];
+const GOOD=["เก่งมาก! 🎉","สุดยอดไปเลย! ⭐","ถูกต้อง! เจ๋งสุดๆ 🔥","เยี่ยมมาก! ไปต่อกัน 🚀"];
+const TRY=["ไม่เป็นไรนะ ทุกคนพลาดได้ ข้อหน้าเอาใหม่! 💪","เกือบแล้ว! ดูเฉลยแล้วเราจะเก่งขึ้น 🌟","ผิดก็คือได้เรียนรู้ ไปลุยข้อต่อไปกัน! 🧭","สู้ๆ นะ นักผจญภัย! 😊"];
+const HINT=["ลากเลขที่ถูกไปใส่ช่อง x ให้หน่อยนะ!","ช่วยหาค่า x ให้ฉันที! 🙏","คิดดีๆ ก่อนนะ เธอทำได้!","ลองแก้สมการทีละขั้นดูนะ ✨"];
+const $=s=>document.querySelector(s),pick=a=>a[Math.floor(Math.random()*a.length)],sh=a=>a.sort(()=>Math.random()-.5);
+let i=0,score=0,deadline=0,tm=null,locked=false,sel=null,R=[],name="",txt="";
+function show(id){["start","play","end"].forEach(s=>$("#"+s).hidden=s!==id)}
+function start(){name=$("#nm").value.trim();i=0;score=0;R=[];show("play");load()}
+function say(t){$("#bub").textContent=t}
+function mood(c){const m=$("#mas");m.classList.remove("yay","oops");void m.offsetWidth;m.classList.add(c);setTimeout(()=>m.classList.remove(c),900)}
+function setSlot(){const s=$("#slot");s.textContent=sel===null?"?":sel;s.classList.toggle("full",sel!==null);document.querySelectorAll(".tok").forEach(t=>t.classList.toggle("sel",+t.dataset.v===sel))}
+function over(ev){const r=$("#slot").getBoundingClientRect();return ev.clientX>r.left-20&&ev.clientX<r.right+20&&ev.clientY>r.top-20&&ev.clientY<r.bottom+20}
+function drag(e,v){
+  let sx,sy,mv,on=false;
+  e.onpointerdown=ev=>{if(locked)return;on=true;mv=false;sx=ev.clientX;sy=ev.clientY;e.setPointerCapture(ev.pointerId);e.classList.add("drag")};
+  e.onpointermove=ev=>{if(!on)return;const dx=ev.clientX-sx,dy=ev.clientY-sy;if(Math.abs(dx)+Math.abs(dy)>8)mv=true;e.style.translate=dx+"px "+dy+"px";$("#slot").classList.toggle("hot",over(ev))};
+  e.onpointerup=ev=>{if(!on)return;on=false;e.classList.remove("drag");e.style.translate="";$("#slot").classList.remove("hot");if(!mv||over(ev)){sel=v;setSlot()}};
+  e.onpointercancel=()=>{on=false;e.classList.remove("drag");e.style.translate=""};
+  e.tabIndex=0;e.onkeydown=ev=>{if(ev.key==="Enter"||ev.key===" "){ev.stopPropagation();ev.preventDefault();sel=v;setSlot()}};
+}
+function buildTray(a){
+  const d=sh([...new Set([a+1,a-1,a+2,a-2,a+3,a*2,a+10].filter(n=>n>0&&n!==a))]).slice(0,3);
+  const t=$("#tray");t.innerHTML="";
+  sh([a,...d]).forEach(v=>{const e=document.createElement("div");e.className="tok";e.textContent=v;e.dataset.v=v;e.setAttribute("role","button");drag(e,v);t.appendChild(e)});
+}
+function load(){
+  locked=false;sel=null;const z=Math.floor(i/10);document.body.dataset.z=z+1;
+  const q=Q[i];
+  $("#zname").textContent=Z[z][0];$("#sc").textContent=score;$("#qn").textContent="ข้อ "+(i+1)+"/30";
+  $("#fill").style.width=(i/30*100)+"%";$("#me").style.left=(i/30*100)+"%";
+  const it=$("#intro");if(i%10===0){it.hidden=false;it.textContent=Z[z][1]}else it.hidden=true;
+  $("#story").textContent=q[0];$("#eq").textContent=q[1];
+  $("#fb").hidden=true;$("#ans").hidden=false;
+  buildTray(q[2]);setSlot();say(pick(HINT));
+  deadline=Date.now()+30000;clearInterval(tm);tick();tm=setInterval(tick,200);
+}
+function tick(){
+  const ms=Math.max(0,deadline-Date.now());
+  $("#ti").style.width=(ms/300)+"%";$("#tn").textContent=Math.ceil(ms/1000);
+  $("#tbar").classList.toggle("low",ms<=10000);
+  if(ms<=0){clearInterval(tm);finish(false,true,null,30)}
+}
+function submit(){
+  if(locked)return;
+  if(sel===null){const c=$("#slot");c.classList.remove("shake");void c.offsetWidth;c.classList.add("shake");say("ลากเลขมาใส่ช่องก่อนนะ 😉");return}
+  const sec=30-(deadline-Date.now())/1000;clearInterval(tm);finish(sel===Q[i][2],false,sel,sec);
+}
+function finish(ok,timeout,pk,sec){
+  locked=true;$("#ans").hidden=true;
+  R.push({ok,pick:pk,sec:Math.min(30,Math.max(0,sec))});
+  if(ok)score+=5;$("#sc").textContent=score;
+  mood(ok?"yay":"oops");say(ok?"เย้! ขอบคุณนะ 🎉":"ไม่เป็นไร เรียนรู้ไปด้วยกัน 💪");
+  const q=Q[i],fb=$("#fb"),last=i===29;
+  fb.className="fb "+(ok?"ok":"no");
+  fb.innerHTML=(ok
+    ?`<h2>${pick(GOOD)}</h2><span class="coin">🪙</span> x = ${q[2]} ถูกต้อง! ได้ +5 คะแนน`
+    :`<h2>${timeout?"⏰ หมดเวลาแล้ว!":"ยังไม่ถูกนะ"}</h2>${pick(TRY)}<br><b>เฉลย: x = ${q[2]}</b><br>${q[3]}`)
+    +`<button id="next">${last?"ดูผลการผจญภัย 🏆":"ไปข้อต่อไป ➡️"}</button>`;
+  fb.hidden=false;
+  $("#next").onclick=()=>{i++;last?end():load()};
+  $("#next").focus({preventScroll:true});
+  fb.scrollIntoView({block:"nearest",behavior:"smooth"});
+}
+function end(){
+  show("end");document.body.dataset.z="1";window.scrollTo(0,0);
+  const ok=R.filter(r=>r.ok).length,p=score/150,acc=Math.round(ok/30*100);
+  const t=p>=.85?["🏆","ตำนานนักล่าค่า x!","ยอดเยี่ยมมาก! คุณจัดการสมการได้เหมือนมืออาชีพเลย"]
+    :p>=.6?["🛡️","อัศวินแห่งสมการ","เก่งมาก! ฝึกอีกนิดก็เป็นตำนานได้แล้ว"]
+    :p>=.3?["🧭","นักผจญภัยฝีมือดี","ทำได้ดีแล้ว! ลองเล่นอีกรอบ คะแนนจะสูงขึ้นแน่นอน"]
+    :["🌱","นักเดินทางหน้าใหม่","ทุกการผจญภัยเริ่มจากก้าวแรก! ลองดูเฉลยแล้วเล่นใหม่อีกครั้งนะ"];
+  $("#eicon").textContent=t[0];$("#etitle").textContent=t[1];$("#emsg").textContent=t[2];
+  $("#ename").textContent=name?"ผู้เล่น: "+name:"";$("#esc").textContent=score;
+  const n=p>=.85?3:p>=.6?2:p>=.3?1:0;$("#estars").textContent="⭐".repeat(n)+"☆".repeat(3-n);
+  const avg=R.reduce((a,r)=>a+r.sec,0)/30,to=R.filter(r=>r.pick===null).length;
+  $("#stats").innerHTML=[["ตอบถูก",ok+"/30"],["ความแม่นยำ",acc+"%"],["เวลาเฉลี่ยต่อข้อ",avg.toFixed(1)+" วิ"],["หมดเวลา",to+" ข้อ"]].map(a=>`<div class="stat"><b>${a[1]}</b>${a[0]}</div>`).join("");
+  const zc=[0,1,2].map(z=>R.slice(z*10,z*10+10).filter(r=>r.ok).length);
+  $("#zbars").innerHTML=zc.map((c,z)=>`<div class="zr"><span>${Z[z][0]}</span><div class="bar"><i style="width:${c*10}%"></i></div><b>${c}/10</b></div>`).join("");
+  const w=zc.indexOf(Math.min(...zc)),sk=["การบวก ลบ คูณ หาร ทีละขั้น","สมการสองขั้นตอนและวงเล็บ","การย้ายตัวแปรมาไว้ข้างเดียวกันและกระจายวงเล็บ"];
+  const tip=zc[w]===10?"ถูกครบทุกด่านเลย เก่งสุดๆ! 🌟":`ควรฝึกเพิ่ม: ${Z[w][0]} (${zc[w]}/10) เรื่อง${sk[w]}`;
+  $("#tip").textContent="💡 "+tip;
+  const wr=R.map((r,k)=>r.ok?"":`<p>ข้อ ${k+1}: ${Q[k][1]} → ตอบ ${r.pick===null?"ไม่ทัน":r.pick} (เฉลย x = ${Q[k][2]})</p>`).join("");
+  $("#rv").hidden=!wr;$("#rvs").textContent=`ข้อที่ควรทบทวน (${30-ok} ข้อ)`;$("#rvl").innerHTML=wr;
+  txt=`นักล่าค่า x – ${name||"ไม่ระบุชื่อ"}\nคะแนน ${score}/150 (ถูก ${ok}/30 ข้อ, ${acc}%)\n${zc.map((c,z)=>Z[z][0]+" "+c+"/10").join(" | ")}\nเวลาเฉลี่ย ${avg.toFixed(1)} วิ/ข้อ, หมดเวลา ${to} ข้อ\n${tip}`;
+  $("#copy").textContent="คัดลอกผลสรุป 📋";
+}
+$("#go").onclick=start;$("#again").onclick=start;$("#sub").onclick=submit;
+$("#slot").onclick=()=>{if(!locked){sel=null;setSlot()}};
+$("#copy").onclick=()=>{(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>$("#copy").textContent="คัดลอกแล้ว ✅").catch(()=>$("#copy").textContent="คัดลอกไม่ได้ ลองแคปหน้าจอแทนนะ")};
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&!$("#play").hidden&&!locked)submit()});
+</script>
+</body>
+</html>
